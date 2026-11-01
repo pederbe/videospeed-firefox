@@ -4,11 +4,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document.querySelector("#about").addEventListener("click", function () {
-    window.open("https://github.com/gediminasel/videospeed-firefox");
+    window.open("https://github.com/pederbe/videospeed-firefox");
   });
 
   document.querySelector("#feedback").addEventListener("click", function () {
-    window.open("https://github.com/gediminasel/videospeed-firefox/issues");
+    window.open("https://github.com/pederbe/videospeed-firefox/issues");
   });
 
   document.querySelector("#enable").addEventListener("click", function () {

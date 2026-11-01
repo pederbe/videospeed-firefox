@@ -1,80 +1,70 @@
-# The science of accelerated playback
+# Video Speed Controller for Firefox
 
-**TL;DR: faster playback translates to better engagement and retention.**
+Adjust HTML5 video and audio playback speed with keyboard shortcuts and an
+on-screen controller. Rewind or skip forward without opening the player's menus.
 
-The average adult reads prose text at
-[250 to 300 words per minute](http://www.paperbecause.com/PIOP/files/f7/f7bb6bc5-2c4a-466f-9ae7-b483a2c0dca4.pdf)
-(wpm). By contrast, the average rate of speech for English speakers is ~150 wpm,
-with slide presentations often closer to 100 wpm. As a result, when given the
-choice, many viewers
-[speed up video playback to ~1.3\~1.5 its recorded rate](http://research.microsoft.com/en-us/um/redmond/groups/coet/compression/chi99/paper.pdf)
-to compensate for the difference.
+This fork continues
+[gediminasel/videospeed-firefox](https://github.com/gediminasel/videospeed-firefox),
+with fixes for unwanted speed changes during playback events and media reloads.
 
-Many viewers report that
-[accelerated viewing keeps their attention longer](http://www.enounce.com/docs/BYUPaper020319.pdf):
-faster delivery keeps the viewer more engaged with the content. In fact, with a
-little training many end up watching videos at 2x+ the recorded speed. Some
-studies report that after being exposed to accelerated playback,
-[listeners become uncomfortable](http://alumni.media.mit.edu/~barons/html/avios92.html#beasleyalteredspeech)
-if they are forced to return to normal rate of presentation.
+## Try this fork
 
-## Faster HTML5 Video
+This fork does not yet have a signed Firefox add-on download. The
+[existing Mozilla listing](https://addons.mozilla.org/en-US/firefox/addon/videospeed/)
+distributes the earlier upstream version.
 
-HTML5 video provides a native API to accelerate playback of any video. The
-problem is many players either hide or limit this functionality. For the best
-results, playback speed adjustments should be easy and frequent to match the pace
-and content being covered: we don't read at a fixed speed, and similarly, we
-need an easy way to accelerate the video, slow it down, and quickly rewind the
-last point to listen to it a few more times.
+To load this fork temporarily, clone the repository or download and extract its
+source, then open `about:debugging#/runtime/this-firefox` in Firefox. Choose
+**Load Temporary Add-on** and select `manifest.json` from the source directory.
+Disable any other video speed controller first to avoid conflicting controls.
+Firefox removes temporary add-ons when it restarts.
 
-![Player](https://cloud.githubusercontent.com/assets/2400185/24076745/5723e6ae-0c41-11e7-820c-1d8e814a2888.png)
+## Keep speed steady on YouTube
 
-#### *Install [Chrome](https://chrome.google.com/webstore/detail/video-speed-controller/nffaoalbilbmmfgbnbgppjihopabppdk) or [Firefox](https://addons.mozilla.org/en-us/firefox/addon/videospeed/) Extension*
+Enable **Force last saved speed** in the extension's settings if the player
+keeps overriding your chosen speed. With this setting on, use the extension's
+shortcuts or on-screen buttons to change speed. Changes from the site's own
+speed menu or other extensions are overridden too.
 
-\*\* Once the extension is installed simply navigate to any page that offers
-HTML5 video ([example](http://www.youtube.com/watch?v=E9FxNzv1Tr8)), and you'll
-see a speed indicator in top left corner. Hover over the indicator to reveal the
-controls to accelerate, slowdown, and quickly rewind or advance the video. Or,
-even better, simply use your keyboard:
+**Remember playback speed** reuses your last speed for newly initialized videos.
+**Force last saved speed** also reuses it when remembering is off, so a media
+reload cannot discard the speed you asked the extension to enforce.
 
-- **S** - decrease playback speed.
-- **D** - increase playback speed.
-- **R** - reset playback speed to 1.0x.
-- **Z** - rewind video by 10 seconds.
-- **X** - advance video by 10 seconds.
-- **G** - toggle between current and user configurable preferred speed.
-- **V** - show/hide the controller.
+With forcing off, the extension continues to accept speed changes made by the
+player. Both settings are off by default.
 
-You can customize and reassign the default shortcut keys in the extensions
-settings page as well as add additional shortcut keys to match your
-preferences. As an example, you can assign multiple "preferred speed" shortcuts with different values, allowing you to quickly toggle between your most frequently used speeds. To add a new shortcut, open extension settings
-and click "Add New".
+## Shortcuts
 
-![settings Add New shortcut](https://user-images.githubusercontent.com/121805/50726471-50242200-1172-11e9-902f-0e5958387617.jpg)
+| Key | Action                                                |
+| --- | ----------------------------------------------------- |
+| S   | Decrease playback speed                               |
+| D   | Increase playback speed                               |
+| R   | Toggle normal playback speed                          |
+| Z   | Rewind 10 seconds                                     |
+| X   | Advance 10 seconds                                    |
+| G   | Toggle the configured preferred speed, initially 1.8× |
+| V   | Show or hide the controller                           |
 
-Unfortunately, some sites may assign other functionality to one of the shortcut keys - this is inevitable. As a workaround, the extension
-listens both for lower and upper case values (i.e. you can use
-`Shift-<shortcut>`) if there is other functionality assigned to the lowercase
-key. This is not a perfect solution since some sites may listen to both, but it works
-most of the time.
+Customize shortcuts, speed increments, preferred speeds and excluded sites in
+the extension's settings. Enable **Work on audio** to control audio elements
+too.
 
-### FAQ
+## Development
 
-**The video controls are not showing up?** This extension is only compatible
-with HTML5 video. If you don't see the controls showing up, chances are you are
-viewing a Flash video. If you want to confirm, try right-clicking on the video
-and inspect the menu: if it mentions flash, then that's the issue. That said,
-most sites will fallback to HTML5 if they detect that Flash is not available.
-You can try manually disabling Flash from the browser.
+Use Node.js 26.12.1 or newer, Firefox and geckodriver. Install the test
+dependencies and run the checks with the same commands used in CI.
 
-**What is this fork of `igrigorik/videospeed` all about?** This fork of the
-[`igrigorik/videospeed`](https://github.com/igrigorik/videospeed) repository
-is a port of [`igrigorik`](https://github.com/igrigorik)'s videospeed Chrome 
-add-on for Firefox. This fork modifies the Chrome add-on code so that it works 
-in Firefox. This repo is the code behind the [Firefox Extension](https://addons.mozilla.org/en-us/firefox/addon/videospeed/)
-whereas the [`igrigorik/videospeed`](https://github.com/igrigorik/videospeed)
-repository contains the code behind the [Chrome Extension](https://chrome.google.com/webstore/detail/video-speed-controller/nffaoalbilbmmfgbnbgppjihopabppdk).
+```sh
+npm ci --ignore-scripts
+npm run check
+```
 
-### License
+The tests install the extension in a disposable headless Firefox profile. They
+use local media and do not access your browser profile or YouTube account. On
+Linux, use disk-backed temporary storage, for example
+`env TMPDIR=/var/tmp npm run check`.
 
-(MIT License) - Copyright (c) 2014 Ilya Grigorik
+## License
+
+[MIT](LICENSE). Based on the work of Ilya Grigorik, Gediminas Lelešius and the
+contributors to the earlier Video Speed Controller projects.

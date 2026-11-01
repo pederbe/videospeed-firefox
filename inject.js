@@ -182,8 +182,8 @@ function defineVideoController() {
 
     this.video = target;
     this.parent = target.parentElement || parent;
-    storedSpeed = tc.settings.speeds[target.currentSrc];
-    if (!tc.settings.rememberSpeed) {
+    var storedSpeed = tc.settings.speeds[target.currentSrc];
+    if (!tc.settings.rememberSpeed && !tc.settings.forceLastSavedSpeed) {
       if (!storedSpeed) {
         log(
           "Overwriting stored speed to 1.0 due to rememberSpeed being disabled",
@@ -193,7 +193,7 @@ function defineVideoController() {
       }
       setKeyBindings("reset", getKeyBindings("fast")); // resetSpeed = fastSpeed
     } else {
-      log("Recalling stored speed due to rememberSpeed being enabled", 5);
+      log("Recalling last saved speed", 5);
       storedSpeed = tc.settings.lastSpeed;
     }
 
@@ -203,8 +203,8 @@ function defineVideoController() {
     this.div = this.initializeControls();
 
     var mediaEventAction = function (event) {
-      storedSpeed = tc.settings.speeds[event.target.currentSrc];
-      if (!tc.settings.rememberSpeed) {
+      var storedSpeed = tc.settings.speeds[event.target.currentSrc];
+      if (!tc.settings.rememberSpeed && !tc.settings.forceLastSavedSpeed) {
         if (!storedSpeed) {
           log("Overwriting stored speed to 1.0 (rememberSpeed not enabled)", 4);
           storedSpeed = 1.0;
@@ -213,10 +213,7 @@ function defineVideoController() {
         log("Setting reset keybinding to fast", 5);
         setKeyBindings("reset", getKeyBindings("fast")); // resetSpeed = fastSpeed
       } else {
-        log(
-          "Storing lastSpeed into tc.settings.speeds (rememberSpeed enabled)",
-          5
-        );
+        log("Recalling last saved speed", 5);
         storedSpeed = tc.settings.lastSpeed;
       }
       // TODO: Check if explicitly setting the playback rate to 1.0 is
@@ -262,7 +259,7 @@ function defineVideoController() {
   tc.videoController.prototype.remove = function () {
     this.div.remove();
     this.video.removeEventListener("play", this.handlePlay);
-    this.video.removeEventListener("seek", this.handleSeek);
+    this.video.removeEventListener("seeked", this.handleSeek);
     delete this.video.vsc;
     let idx = tc.mediaElements.indexOf(this.video);
     if (idx != -1) {
@@ -731,6 +728,9 @@ function initializeNow(document) {
 function setSpeed(video, speed) {
   log("setSpeed started: " + speed, 5);
   var speedvalue = speed.toFixed(2);
+  // Native ratechange events are queued. A play or seek event can arrive
+  // before they update the cache, so record the selection immediately.
+  tc.settings.speeds[video.currentSrc] = Number(speedvalue);
   if (tc.settings.forceLastSavedSpeed) {
     video.dispatchEvent(
       new CustomEvent("ratechange", {
